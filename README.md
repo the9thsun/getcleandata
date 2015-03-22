@@ -6,8 +6,11 @@ For submitting Assigment with Getting and Cleaning Data Coursera course
 Files in repository - 
 
 
-1. run_analysis.R
+1. Codebook: codebook.MD
+  Describes variables created from script.
 
+
+2. run_analysis.R
 Dataset:
 ==================================================================
 Human Activity Recognition Using Smartphones Dataset
@@ -38,9 +41,3 @@ Steps of run_analysis
 4. Renames activity variable values
 5. Melts and casts dataset to get average values of variables for each subject ID and activity pairing
 6. Outputs tidy dataset to text file
-
-
-
-2. Codebook: codebook.MD
-
-Describes variables created from script.
