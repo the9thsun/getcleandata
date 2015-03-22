@@ -6,9 +6,15 @@
 #From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
 setwd("C:/Users/JtopTosh1/Downloads/UCI HAR Dataset/")
+features <- read.table("features.txt")
+feats <- as.vector(features$V2)
+slots <- grep("mean|Mean|std|Std", features$V2) #extract only mean and sd
+features$V2[slots]
 
 obs<-1:2947
 xtest<-read.table("test/X_test.txt")
+names(xtest)<-feats
+xtest<-xtest[slots]
 ytest<-read.table("test/Y_test.txt")
 subject<-read.table("test/subject_test.txt")
 dim(unique(subject))
@@ -28,6 +34,8 @@ dim(test)
 
 obs<-1:7352
 xtrain<-read.table("train/X_train.txt")
+names(xtrain)<-feats
+xtrain<-xtrain[slots]
 ytrain<-read.table("train/Y_train.txt")
 subjec<-read.table("train/subject_train.txt")
 dim(unique(subjec))
@@ -41,15 +49,20 @@ names(f)<-c("obs", "id")
 test2 <- merge(e,d, by.x="obs", by.y="obs")
 test3 <- merge(f,test2, by.x="obs", by.y="obs")
 
+# install.packages("dplyr")
+library(plyr)
+library(dplyr)
+
 # merge test and train
-length(intersect(names(test1), names(test3))) #564 variables including obs,id,activity
+length(intersect(names(test1), names(test3))) #89 variables including obs,id,activity
 head(intersect(names(test1), names(test3)))
 
 merged = merge(test1, test3, all=TRUE)
-
-# install.packages("dplyr")
-library(dplyr)
 merged <- select(merged, -obs)
+
+# install.packages("reshape")
+library(reshape)
+library(reshape2)
 
 attach(merged)
 merged$act[activity==1] <- "1 Walking"
@@ -60,25 +73,10 @@ merged$act[activity==5] <- "5 Standing"
 merged$act[activity==6] <- "6 Laying"
 detach(merged)
 
-library(stats)
-# install.packages("matrixStats")
-library(matrixStats)
-# install.packages("reshape")
-library(reshape)
-library(reshape2)
+merged <- select(merged, -activity)
+melts <- melt(merged, id=c("id", "act"))
+names(melts) <- c("SubjectID", "Activity", "variable", "value")
+tidy <- dcast(melts, SubjectID+Activity~variable, mean, value="value")
 
-merged$mean<-rowMeans(merged[3:563])
-merged$sd<-rowSds(as.matrix(merged[3:563]))
-
-melts <- melt(merged, id=c("id", "act")
-summary(melts)
-x <- cast(merged, id ~ act, mean, value="mean")
-names(x)<- c("id", "1 Walking mean", "2 Walking up mean", "3 Walking down mean",
-		"4 Sitting mean", "5 Standing mean", "6 Laying mean")
-y <- cast(merged, id ~ act, mean, value="sd")
-names(y)<- c("id", "1 Walking sd", "2 Walking up sd", "3 Walking down sd",
-		"4 Sitting sd", "5 Standing sd", "6 Laying sd")
-
-tidy <- merge(x, y, by.x="id", by.y="id")
 
 write.table(tidy, file="C:/Users/JtopTosh1/Documents/R/tidy.txt", row.names=FALSE)
