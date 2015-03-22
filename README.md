@@ -11,6 +11,7 @@ Files in repository -
 
 
 2. run_analysis.R
+
 Purpose: to merge training and test sets to create one dataset. 
 Reorganizes and collapses all 10299 observations to provide information on 30 subjects (21 training, 9 test) during 6 activities. 
 
